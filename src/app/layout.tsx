@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { SITE } from "@/lib/site";
+import { SITE, absoluteUrl } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE.url),
+  metadataBase: new URL(SITE.origin),
   title: `${SITE.name} — small tools`,
   description: SITE.description,
   applicationName: SITE.name,
-  alternates: { canonical: "/" },
+  alternates: { canonical: absoluteUrl("/") },
   robots: { index: true, follow: true },
 };
 

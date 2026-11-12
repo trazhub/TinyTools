@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TOOLS, type ToolSlug } from "@/lib/tool-list";
-import { SITE } from "@/lib/site";
+import { SITE, absoluteUrl } from "@/lib/site";
 import WordCounter from "@/os/apps/utilities/word-counter";
 import JsonFormatter from "@/os/apps/utilities/json-formatter";
 import Base64 from "@/os/apps/utilities/base64-encoder-decoder";
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ tool: str
   const { tool: slug } = await params;
   const tool = TOOLS.find((t) => t.slug === slug);
   if (!tool) return {};
-  return { title: `${tool.name} — ${SITE.name}`, description: tool.description, alternates: { canonical: `/${tool.slug}/` } };
+  return { title: `${tool.name} — ${SITE.name}`, description: tool.description, alternates: { canonical: absoluteUrl(`/${tool.slug}/`) } };
 }
 
 export default async function ToolPage({ params }: { params: Promise<{ tool: string }> }) {

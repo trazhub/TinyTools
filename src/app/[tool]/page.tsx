@@ -18,10 +18,38 @@ import VideoConverter from "@/tools/video-converter";
 import Viewer3D from "@/tools/viewer-3d";
 import PdfCompress from "@/tools/pdf-compress";
 import Ocr from "@/tools/ocr";
+import ServerPdf from "@/tools/server-pdf";
+import PdfEdit from "@/tools/pdf-edit";
+import PdfMerge from "@/tools/pdf-merge";
+import PdfSplit from "@/tools/pdf-split";
+import PdfOrganize from "@/tools/pdf-organize";
+import PdfPlace from "@/tools/pdf-place";
+import PdfRedact from "@/tools/pdf-redact";
+import PdfForms from "@/tools/pdf-forms";
+import PdfCompare from "@/tools/pdf-compare";
 
 const VIEWS: Record<ToolSlug, ComponentType> = {
   "pdf-compress": PdfCompress,
   ocr: Ocr,
+  "unlock-pdf": () => <ServerPdf kind="unlock-pdf" />,
+  "protect-pdf": () => <ServerPdf kind="protect-pdf" />,
+  "repair-pdf": () => <ServerPdf kind="repair-pdf" />,
+  "ocr-pdf": () => <ServerPdf kind="ocr-pdf" />,
+  "merge-pdf": PdfMerge,
+  "sign-pdf": () => <PdfPlace mode="sign" />,
+  "edit-pdf": () => <PdfPlace mode="edit" />,
+  "redact-pdf": PdfRedact,
+  "fill-pdf-form": PdfForms,
+  "compare-pdf": PdfCompare,
+  "scan-to-pdf": () => <PdfMaker scan />,
+  "split-pdf": PdfSplit,
+  "organize-pdf": PdfOrganize,
+  "remove-pages": () => <PdfEdit kind="remove-pages" />,
+  "extract-pages": () => <PdfEdit kind="extract-pages" />,
+  "rotate-pdf": () => <PdfEdit kind="rotate-pdf" />,
+  "page-numbers": () => <PdfEdit kind="page-numbers" />,
+  "watermark-pdf": () => <PdfEdit kind="watermark-pdf" />,
+  "crop-pdf": () => <PdfEdit kind="crop-pdf" />,
   "word-counter": WordCounter,
   "json-formatter": JsonFormatter,
   base64: Base64,

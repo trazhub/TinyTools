@@ -9,6 +9,8 @@ interface FileDropzoneProps {
   disabled?: boolean;
   title?: string;
   hint: string;
+  /** On phones, open the camera instead of the photo library. */
+  capture?: "environment" | "user";
   onFiles: (files: File[]) => void;
 }
 
@@ -22,6 +24,7 @@ export function FileDropzone({
   disabled,
   title = "Drop files here or click to choose",
   hint,
+  capture,
   onFiles,
 }: FileDropzoneProps) {
   const [dragging, setDragging] = useState(false);
@@ -59,6 +62,7 @@ export function FileDropzone({
         ref={inputRef}
         type="file"
         accept={accept}
+        capture={capture}
         multiple={multiple}
         disabled={disabled}
         className="sr-only"

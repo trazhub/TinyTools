@@ -77,13 +77,14 @@ async def save_upload(file: UploadFile, folder: str, allowed: set[str]) -> tuple
     return path, kind
 
 
-async def run(cmd: list[str], failure: str) -> subprocess.CompletedProcess:
+async def run(cmd: list[str], failure: str, ok: tuple[int, ...] = (0,)) -> subprocess.CompletedProcess:
     try:
-        return await asyncio.to_thread(subprocess.run, cmd, check=True, timeout=JOB_TIMEOUT, capture_output=True)
+        done = await asyncio.to_thread(subprocess.run, cmd, timeout=JOB_TIMEOUT, capture_output=True)
     except subprocess.TimeoutExpired:
         raise HTTPException(504, "That file took too long to process.")
-    except subprocess.CalledProcessError:
+    if done.returncode not in ok:
         raise HTTPException(422, failure)
+    return done
 
 
 @app.get("/health")
@@ -149,3 +150,124 @@ async def ocr(request: Request, file: UploadFile = File(...), lang: str = Form("
         return {"text": "\n\n".join(t for t in texts if t), "pages": len(images)}
     finally:
         shutil.rmtree(folder, ignore_errors=True)
+
+
+# ---- qpdf / tesseract based PDF tools ---------------------------------------------------
+
+QPDF_OK = (0, 3)  # 3 = finished with warnings
+
+
+def has_newline(text: str) -> bool:
+    return chr(10) in text or chr(13) in text
+
+
+def pdf_response(path: str, name: str, cleanup: BackgroundTask) -> FileResponse:
+    return FileResponse(path, media_type="application/pdf", filename=name, background=cleanup)
+
+
+@app.post("/unlock")
+async def unlock(request: Request, file: UploadFile = File(...), password: str = Form("")):
+    """Remove the password from a PDF. Needs the password if the file asks for one to open."""
+    rate_limit(request)
+    if len(password) > 128 or has_newline(password):
+        raise HTTPException(400, "That password is not valid.")
+    folder = tempfile.mkdtemp(prefix="job-")
+    cleanup = BackgroundTask(shutil.rmtree, folder, ignore_errors=True)
+    try:
+        src, _ = await save_upload(file, folder, {"pdf"})
+        out = os.path.join(folder, "out.pdf")
+        pwfile = os.path.join(folder, "pw")
+        with open(pwfile, "w") as f:
+            f.write(password)
+        async with jobs:
+            await run(["qpdf", f"--password-file={pwfile}", "--decrypt", src, out],
+                      "Could not unlock that PDF. The password may be wrong, or the file is damaged.", QPDF_OK)
+        return pdf_response(out, "unlocked.pdf", cleanup)
+    except BaseException:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise
+
+
+@app.post("/protect")
+async def protect(request: Request, file: UploadFile = File(...), password: str = Form(...)):
+    """Encrypt a PDF (AES-256) so it asks for a password to open."""
+    rate_limit(request)
+    if not (4 <= len(password) <= 64) or has_newline(password) or password.startswith("@"):
+        raise HTTPException(400, "Use a password of 4 to 64 characters that does not start with @.")
+    folder = tempfile.mkdtemp(prefix="job-")
+    cleanup = BackgroundTask(shutil.rmtree, folder, ignore_errors=True)
+    try:
+        src, _ = await save_upload(file, folder, {"pdf"})
+        out = os.path.join(folder, "out.pdf")
+        argfile = os.path.join(folder, "args")
+        with open(argfile, "w") as f:  # one argument per line; keeps the password out of the process list
+            f.write(chr(10).join(["--encrypt", password, password, "256", "--", src, out]) + chr(10))
+        async with jobs:
+            await run(["qpdf", f"@{argfile}"], "That PDF could not be protected. It may be damaged or already encrypted.", QPDF_OK)
+        return pdf_response(out, "protected.pdf", cleanup)
+    except BaseException:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise
+
+
+@app.post("/repair")
+async def repair(request: Request, file: UploadFile = File(...)):
+    """Rebuild a damaged PDF. Tries qpdf first, then a full rewrite with Ghostscript."""
+    rate_limit(request)
+    folder = tempfile.mkdtemp(prefix="job-")
+    cleanup = BackgroundTask(shutil.rmtree, folder, ignore_errors=True)
+    try:
+        src, _ = await save_upload(file, folder, {"pdf"})
+        out = os.path.join(folder, "out.pdf")
+        async with jobs:
+            try:
+                await run(["qpdf", src, out], "qpdf failed", QPDF_OK)
+            except HTTPException:
+                rewritten = await run(["gs", "-sDEVICE=pdfwrite", "-dNOPAUSE", "-dQUIET", "-dBATCH", "-dSAFER", f"-sOutputFile={out}", src],
+                                      "That PDF could not be repaired. Too much of it is missing.")
+                # On unreadable input Ghostscript exits normally but writes an empty page.
+                if b"No pages will be processed" in rewritten.stdout + rewritten.stderr:
+                    raise HTTPException(422, "That PDF could not be repaired. Nothing could be recovered from it.")
+        # A "repaired" file with no pages is a failure, not a success.
+        try:
+            pages = int((await run(["qpdf", "--show-npages", out], "That PDF could not be repaired.", QPDF_OK)).stdout.strip() or 0)
+        except ValueError:
+            pages = 0
+        if pages < 1:
+            raise HTTPException(422, "That PDF could not be repaired. Nothing could be recovered from it.")
+        return pdf_response(out, "repaired.pdf", cleanup)
+    except BaseException:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise
+
+
+@app.post("/ocr-pdf")
+async def ocr_pdf(request: Request, file: UploadFile = File(...), lang: str = Form("eng")):
+    """Make a scanned PDF searchable: every page gets an invisible text layer."""
+    rate_limit(request)
+    if lang not in LANGS:
+        raise HTTPException(400, "Unknown language.")
+    folder = tempfile.mkdtemp(prefix="job-")
+    cleanup = BackgroundTask(shutil.rmtree, folder, ignore_errors=True)
+    try:
+        src, kind = await save_upload(file, folder, {"pdf", "png", "jpg"})
+        async with jobs:
+            if kind == "pdf":
+                pattern = os.path.join(folder, "page-%03d.png")
+                await run(["gs", "-sDEVICE=png16m", "-r200", "-dNOPAUSE", "-dQUIET", "-dBATCH", "-dSAFER",
+                           f"-dLastPage={MAX_OCR_PAGES}", f"-sOutputFile={pattern}", src],
+                          "That PDF could not be read. It may be damaged or protected.")
+                images = sorted(glob.glob(os.path.join(folder, "page-*.png")))
+            else:
+                images = [src]
+            parts = []
+            for i, img in enumerate(images):
+                base = os.path.join(folder, f"ocr-{i:03d}")
+                await run(["tesseract", img, base, "-l", lang, "pdf"], "The text could not be read from that file.")
+                parts.append(base + ".pdf")
+            out = os.path.join(folder, "out.pdf")
+            await run(["qpdf", "--empty", "--pages", *parts, "--", out], "The pages could not be combined.", QPDF_OK)
+        return pdf_response(out, "searchable.pdf", cleanup)
+    except BaseException:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise

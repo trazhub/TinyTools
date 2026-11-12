@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ghostscript tesseract-ocr tesseract-ocr-eng \
+ && apt-get install -y --no-install-recommends ghostscript qpdf tesseract-ocr tesseract-ocr-eng \
     tesseract-ocr-hin tesseract-ocr-spa tesseract-ocr-fra tesseract-ocr-deu \
  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app

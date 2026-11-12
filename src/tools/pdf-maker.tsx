@@ -19,7 +19,8 @@ const MARGIN = 24;
 
 let counter = 0;
 
-export default function PdfMaker() {
+/** `scan` opens the phone camera for each page instead of the photo library. */
+export default function PdfMaker({ scan = false }: { scan?: boolean }) {
   const [items, setItems] = useState<{ id: number; file: File }[]>([]);
   const [size, setSize] = useState<string>("fit");
   const [busy, setBusy] = useState(false);
@@ -72,7 +73,9 @@ export default function PdfMaker() {
       <FileDropzone
         accept="image/*"
         multiple
-        hint="PNG, JPG or WebP. Each image becomes one page. Nothing is uploaded."
+        capture={scan ? "environment" : undefined}
+        title={scan ? "Tap to take a photo of a page" : undefined}
+        hint={scan ? "Take one photo per page, then add the next. Nothing is uploaded." : "PNG, JPG or WebP. Each image becomes one page. Nothing is uploaded."}
         onFiles={(files) => setItems((list) => [...list, ...files.map((file) => ({ id: ++counter, file }))])}
       />
 

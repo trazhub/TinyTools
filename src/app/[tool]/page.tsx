@@ -9,6 +9,13 @@ import JsonFormatter from "@/os/apps/utilities/json-formatter";
 import Base64 from "@/os/apps/utilities/base64-encoder-decoder";
 import PasswordGenerator from "@/os/apps/utilities/password-generator";
 import ImageCompressor from "@/os/apps/utilities/image-compressor";
+import ImageResize from "@/tools/image-resize";
+import ImageConverter from "@/tools/image-converter";
+import PdfMaker from "@/tools/pdf-maker";
+import PdfToImages from "@/tools/pdf-to-images";
+import PdfDark from "@/tools/pdf-dark";
+import VideoConverter from "@/tools/video-converter";
+import Viewer3D from "@/tools/viewer-3d";
 
 const VIEWS: Record<ToolSlug, ComponentType> = {
   "word-counter": WordCounter,
@@ -16,6 +23,14 @@ const VIEWS: Record<ToolSlug, ComponentType> = {
   base64: Base64,
   "password-generator": PasswordGenerator,
   "image-compressor": ImageCompressor,
+  "image-scaler": () => <ImageResize mode="scale" />,
+  "resolution-changer": () => <ImageResize mode="resolution" />,
+  "image-format-changer": ImageConverter,
+  "pdf-maker": PdfMaker,
+  "pdf-to-images": PdfToImages,
+  "pdf-dark-mode": PdfDark,
+  "video-format-changer": VideoConverter,
+  "3d-viewer": Viewer3D,
 };
 
 export const dynamicParams = false;

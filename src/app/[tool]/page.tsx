@@ -16,8 +16,10 @@ import PdfToImages from "@/tools/pdf-to-images";
 import PdfDark from "@/tools/pdf-dark";
 import VideoConverter from "@/tools/video-converter";
 import Viewer3D from "@/tools/viewer-3d";
+import PdfCompress from "@/tools/pdf-compress";
 
 const VIEWS: Record<ToolSlug, ComponentType> = {
+  "pdf-compress": PdfCompress,
   "word-counter": WordCounter,
   "json-formatter": JsonFormatter,
   base64: Base64,
@@ -51,13 +53,20 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
   const tool = TOOLS.find((t) => t.slug === slug);
   if (!tool) notFound();
   const View = VIEWS[tool.slug];
+  if (!View) notFound();
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <Link href="/" className="text-sm">
         ← {SITE.name}
       </Link>
       <h1 className="mt-6 text-2xl font-medium">{tool.name}</h1>
-      <p className="mb-8 mt-1 text-muted-foreground">{tool.description}</p>
+      <p className="mt-1 text-muted-foreground">{tool.description}</p>
+      {tool.server && (
+        <p className="mt-4 border border-foreground p-3 text-sm">
+          This tool runs on our server. Your file is uploaded, processed, and deleted right after. Other tools on this site never upload anything.
+        </p>
+      )}
+      <div className="mt-8" />
       <View />
     </main>
   );

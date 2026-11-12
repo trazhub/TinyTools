@@ -11,7 +11,10 @@ export default function Home() {
         {TOOLS.map((t) => (
           <li key={t.slug} className="border-b border-foreground">
             <Link href={`/${t.slug}/`} className="flex items-baseline justify-between gap-4 py-3 no-underline hover:underline">
-              <span className="font-medium">{t.name}</span>
+              <span className="font-medium">
+                {t.name}
+                {t.server && <span className="ml-2 border border-foreground px-1 text-xs font-normal">uploads</span>}
+              </span>
               <span className="text-right text-sm text-muted-foreground">{t.description}</span>
             </Link>
           </li>

@@ -18,3 +18,6 @@ export const SITE = {
 export function absoluteUrl(path: string): string {
   return `${SITE.origin}${SITE.base}${path.startsWith("/") ? path : `/${path}`}`;
 }
+
+/** The TinyTools server (for the few tools that cannot run in the browser). Override with NEXT_PUBLIC_API_URL. */
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL?.trim() || "https://tiny-vm.tailf8b46c.ts.net").replace(/\/+$/, "");

@@ -1,69 +1,9 @@
-import type { ComponentType } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { TOOLS, type ToolSlug } from "@/lib/tool-list";
+import { TOOLS } from "@/lib/tool-list";
 import { SITE, absoluteUrl } from "@/lib/site";
-import WordCounter from "@/os/apps/utilities/word-counter";
-import JsonFormatter from "@/os/apps/utilities/json-formatter";
-import Base64 from "@/os/apps/utilities/base64-encoder-decoder";
-import PasswordGenerator from "@/os/apps/utilities/password-generator";
-import ImageCompressor from "@/os/apps/utilities/image-compressor";
-import ImageResize from "@/tools/image-resize";
-import ImageConverter from "@/tools/image-converter";
-import PdfMaker from "@/tools/pdf-maker";
-import PdfToImages from "@/tools/pdf-to-images";
-import PdfDark from "@/tools/pdf-dark";
-import VideoConverter from "@/tools/video-converter";
-import Viewer3D from "@/tools/viewer-3d";
-import PdfCompress from "@/tools/pdf-compress";
-import Ocr from "@/tools/ocr";
-import ServerPdf from "@/tools/server-pdf";
-import PdfEdit from "@/tools/pdf-edit";
-import PdfMerge from "@/tools/pdf-merge";
-import PdfSplit from "@/tools/pdf-split";
-import PdfOrganize from "@/tools/pdf-organize";
-import PdfPlace from "@/tools/pdf-place";
-import PdfRedact from "@/tools/pdf-redact";
-import PdfForms from "@/tools/pdf-forms";
-import PdfCompare from "@/tools/pdf-compare";
-
-const VIEWS: Record<ToolSlug, ComponentType> = {
-  "pdf-compress": PdfCompress,
-  ocr: Ocr,
-  "unlock-pdf": () => <ServerPdf kind="unlock-pdf" />,
-  "protect-pdf": () => <ServerPdf kind="protect-pdf" />,
-  "repair-pdf": () => <ServerPdf kind="repair-pdf" />,
-  "ocr-pdf": () => <ServerPdf kind="ocr-pdf" />,
-  "merge-pdf": PdfMerge,
-  "sign-pdf": () => <PdfPlace mode="sign" />,
-  "edit-pdf": () => <PdfPlace mode="edit" />,
-  "redact-pdf": PdfRedact,
-  "fill-pdf-form": PdfForms,
-  "compare-pdf": PdfCompare,
-  "scan-to-pdf": () => <PdfMaker scan />,
-  "split-pdf": PdfSplit,
-  "organize-pdf": PdfOrganize,
-  "remove-pages": () => <PdfEdit kind="remove-pages" />,
-  "extract-pages": () => <PdfEdit kind="extract-pages" />,
-  "rotate-pdf": () => <PdfEdit kind="rotate-pdf" />,
-  "page-numbers": () => <PdfEdit kind="page-numbers" />,
-  "watermark-pdf": () => <PdfEdit kind="watermark-pdf" />,
-  "crop-pdf": () => <PdfEdit kind="crop-pdf" />,
-  "word-counter": WordCounter,
-  "json-formatter": JsonFormatter,
-  base64: Base64,
-  "password-generator": PasswordGenerator,
-  "image-compressor": ImageCompressor,
-  "image-scaler": () => <ImageResize mode="scale" />,
-  "resolution-changer": () => <ImageResize mode="resolution" />,
-  "image-format-changer": ImageConverter,
-  "pdf-maker": PdfMaker,
-  "pdf-to-images": PdfToImages,
-  "pdf-dark-mode": PdfDark,
-  "video-format-changer": VideoConverter,
-  "3d-viewer": Viewer3D,
-};
+import { VIEWS } from "@/tools/registry";
 
 export const dynamicParams = false;
 

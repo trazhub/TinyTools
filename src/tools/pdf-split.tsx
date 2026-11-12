@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { ToolField } from "@/components/tool/tool-field";
-import { createZip } from "@/lib/zip";
-import { downloadBlob } from "@/lib/utils";
+import { ResultList, type ResultFile } from "./result-card";
 import { baseName, errorMessage } from "./shared";
 import { loadPdfLib, parseRanges, pickPages } from "./pdf-utils";
 
@@ -24,14 +23,14 @@ export default function PdfSplit() {
   const [spec, setSpec] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<string | null>(null);
+  const [parts, setParts] = useState<ResultFile[] | null>(null);
 
   async function pick([f]: File[]) {
     if (!f) return;
     setFile(f);
     setPages(null);
     setError(null);
-    setDone(null);
+    setParts(null);
     try {
       setPages((await loadPdfLib(f)).getPageCount());
     } catch (e) {
@@ -43,7 +42,7 @@ export default function PdfSplit() {
   async function run() {
     if (!file) return;
     setError(null);
-    setDone(null);
+    setParts(null);
     setBusy(true);
     try {
       const doc = await loadPdfLib(file);
@@ -58,15 +57,16 @@ export default function PdfSplit() {
       }
       const name = baseName(file.name);
       const pad = String(groups.length).length;
-      const entries: { name: string; data: Uint8Array }[] = [];
+      const made: ResultFile[] = [];
       for (const [i, g] of groups.entries()) {
         const part = await pickPages(doc, g);
-        entries.push({ name: `${name}-${String(i + 1).padStart(pad, "0")}.pdf`, data: await part.save() });
+        made.push({
+          name: `${name}-${String(i + 1).padStart(pad, "0")}.pdf`,
+          blob: new Blob([(await part.save()) as BlobPart], { type: "application/pdf" }),
+          info: `${g.length} page${g.length === 1 ? "" : "s"}`,
+        });
       }
-      const only = entries[0];
-      if (entries.length === 1 && only) downloadBlob(new Blob([only.data as BlobPart], { type: "application/pdf" }), only.name);
-      else downloadBlob(new Blob([createZip(entries) as BlobPart], { type: "application/zip" }), `${name}-split.zip`);
-      setDone(`Made ${entries.length} PDF${entries.length === 1 ? "" : "s"}.`);
+      setParts(made);
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -98,7 +98,7 @@ export default function PdfSplit() {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
-      {done && <Alert tone="success">{done}</Alert>}
+      {parts && <ResultList files={parts} zipName={`${baseName(file?.name ?? "split")}-split.zip`} />}
     </div>
   );
 }

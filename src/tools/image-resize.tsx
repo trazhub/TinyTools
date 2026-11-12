@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { ToolField } from "@/components/tool/tool-field";
-import { downloadBlob, formatBytes } from "@/lib/utils";
+import { formatBytes } from "@/lib/utils";
 import { EXT, OUTPUT_QUALITY, baseName, errorMessage, canvasToBlob, checkSize, drawScaled, openBitmap } from "./shared";
+import { ResultCard } from "./result-card";
 
 interface Loaded {
   file: File;
@@ -117,18 +117,7 @@ export default function ImageResize({ mode }: { mode: "scale" | "resolution" }) 
         </div>
       )}
 
-      {result && (
-        <div className="space-y-3 border border-foreground p-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={result.url} alt="Result" className="max-h-64 max-w-full border border-border" />
-          <p className="text-sm">
-            {result.width} × {result.height} px, {formatBytes(result.blob.size)}
-          </p>
-          <Button onClick={() => downloadBlob(result.blob, result.name)}>
-            <Download aria-hidden /> Download
-          </Button>
-        </div>
-      )}
+      {result && <ResultCard blob={result.blob} name={result.name} note={`${result.width} × ${result.height} px`} />}
     </div>
   );
 }

@@ -6,7 +6,8 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { baseName, canvasToBlob, errorMessage } from "./shared";
-import { loadPdfLib, savePdf } from "./pdf-utils";
+import { ResultCard } from "./result-card";
+import { loadPdfLib, pdfBlob } from "./pdf-utils";
 import { openPdf, renderPage, safeScale } from "./pdf-render";
 import { PageNav, PagePreview, type Rect } from "./pdf-preview";
 
@@ -23,8 +24,10 @@ export default function PdfRedact() {
   const [boxes, setBoxes] = useState<Record<number, Rect[]>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ blob: Blob; name: string } | null>(null);
 
   async function pick([f]: File[]) {
+    setResult(null);
     if (!f) return;
     setError(null);
     setBoxes({});
@@ -42,6 +45,7 @@ export default function PdfRedact() {
   async function save() {
     if (!file || !doc) return;
     setError(null);
+    setResult(null);
     setBusy(true);
     try {
       const { PDFDocument } = await import("pdf-lib");
@@ -62,7 +66,7 @@ export default function PdfRedact() {
         const img = await out.embedJpg(new Uint8Array(await (await canvasToBlob(canvas, "image/jpeg", 0.92)).arrayBuffer()));
         out.addPage([size.width, size.height]).drawImage(img, { x: 0, y: 0, width: size.width, height: size.height });
       }
-      await savePdf(out, `${baseName(file.name)}-redacted.pdf`);
+      setResult({ blob: await pdfBlob(out), name: `${baseName(file.name)}-redacted.pdf` });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -102,6 +106,7 @@ export default function PdfRedact() {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

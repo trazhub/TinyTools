@@ -6,9 +6,8 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
-import { createZip } from "@/lib/zip";
-import { downloadBlob } from "@/lib/utils";
 import { baseName, canvasToBlob, errorMessage } from "./shared";
+import { ResultList, type ResultFile } from "./result-card";
 import { openPdf, renderPage, safeScale } from "./pdf-render";
 
 const FORMATS = [
@@ -27,34 +26,31 @@ export default function PdfToImages() {
   const [quality, setQuality] = useState<string>("2");
   const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<string | null>(null);
+  const [images, setImages] = useState<ResultFile[] | null>(null);
 
   async function run() {
     if (!file) return;
     setError(null);
-    setDone(null);
+    setImages(null);
     try {
       setProgress("Opening…");
       const doc = await openPdf(file);
       const ext = type === "image/png" ? "png" : "jpg";
       const name = baseName(file.name);
       const pad = String(doc.numPages).length;
-      const entries: { name: string; data: Uint8Array }[] = [];
+      const made: ResultFile[] = [];
       for (let i = 1; i <= doc.numPages; i++) {
         setProgress(`Page ${i} of ${doc.numPages}…`);
         const first = await doc.getPage(i);
         const v = first.getViewport({ scale: 1 });
         const canvas = await renderPage(doc, i, safeScale(v.width, v.height, Number(quality)));
-        const blob = await canvasToBlob(canvas, type, 0.92);
-        entries.push({ name: `${name}-${String(i).padStart(pad, "0")}.${ext}`, data: new Uint8Array(await blob.arrayBuffer()) });
+        made.push({
+          name: `${name}-${String(i).padStart(pad, "0")}.${ext}`,
+          blob: await canvasToBlob(canvas, type, 0.92),
+          info: `${canvas.width} × ${canvas.height} px`,
+        });
+        setImages([...made]);
       }
-      const only = entries[0];
-      if (entries.length === 1 && only) {
-        downloadBlob(new Blob([only.data as BlobPart], { type }), only.name);
-      } else {
-        downloadBlob(new Blob([createZip(entries) as BlobPart], { type: "application/zip" }), `${name}-pages.zip`);
-      }
-      setDone(entries.length === 1 ? "Downloaded 1 image." : `Downloaded ${entries.length} images in a zip.`);
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -70,7 +66,7 @@ export default function PdfToImages() {
         onFiles={([f]) => {
           if (!f) return;
           setFile(f);
-          setDone(null);
+          setImages(null);
           setError(null);
         }}
       />
@@ -92,7 +88,7 @@ export default function PdfToImages() {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
-      {done && <Alert tone="success">{done}</Alert>}
+      {images && <ResultList files={images} zipName={`${baseName(file?.name ?? "pages")}-pages.zip`} />}
     </div>
   );
 }

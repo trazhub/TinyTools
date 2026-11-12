@@ -8,7 +8,8 @@ import { Checkbox, Input, Select } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { ToolField } from "@/components/tool/tool-field";
 import { baseName, errorMessage } from "./shared";
-import { loadPdfLib, savePdf } from "./pdf-utils";
+import { ResultCard } from "./result-card";
+import { loadPdfLib, pdfBlob } from "./pdf-utils";
 
 type Field =
   | { name: string; type: "text"; value: string }
@@ -22,8 +23,10 @@ export default function PdfForms() {
   const [flatten, setFlatten] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ blob: Blob; name: string } | null>(null);
 
   async function pick([f]: File[]) {
+    setResult(null);
     if (!f) return;
     setError(null);
     setFields(null);
@@ -50,6 +53,7 @@ export default function PdfForms() {
   async function save() {
     if (!file || !fields) return;
     setError(null);
+    setResult(null);
     setBusy(true);
     try {
       const { PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } = await import("pdf-lib");
@@ -64,7 +68,7 @@ export default function PdfForms() {
         }
       }
       if (flatten) form.flatten();
-      await savePdf(doc, `${baseName(file.name)}-filled.pdf`);
+      setResult({ blob: await pdfBlob(doc), name: `${baseName(file.name)}-filled.pdf` });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -110,6 +114,7 @@ export default function PdfForms() {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

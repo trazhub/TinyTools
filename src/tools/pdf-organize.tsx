@@ -6,7 +6,8 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { baseName, errorMessage } from "./shared";
-import { loadPdfLib, pickPages, savePdf } from "./pdf-utils";
+import { ResultCard } from "./result-card";
+import { loadPdfLib, pickPages, pdfBlob } from "./pdf-utils";
 import { openPdf, renderPage } from "./pdf-render";
 
 const MAX_PAGES = 150;
@@ -24,8 +25,10 @@ export default function PdfOrganize() {
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ blob: Blob; name: string } | null>(null);
 
   async function pick([f]: File[]) {
+    setResult(null);
     if (!f) return;
     setFile(f);
     setTiles(null);
@@ -62,6 +65,7 @@ export default function PdfOrganize() {
   async function save() {
     if (!file || !tiles) return;
     setError(null);
+    setResult(null);
     setBusy(true);
     try {
       const { degrees } = await import("pdf-lib");
@@ -73,7 +77,7 @@ export default function PdfOrganize() {
           page.setRotation(degrees((page.getRotation().angle + t.turn) % 360));
         }
       });
-      await savePdf(out, `${baseName(file.name)}-organized.pdf`);
+      setResult({ blob: await pdfBlob(out), name: `${baseName(file.name)}-organized.pdf` });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -128,6 +132,7 @@ export default function PdfOrganize() {
       )}
       {tiles && tiles.length === 0 && <Alert tone="info">Every page was deleted. Choose the file again to start over.</Alert>}
       {error && <Alert tone="error">{error}</Alert>}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

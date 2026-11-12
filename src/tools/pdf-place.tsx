@@ -8,7 +8,8 @@ import { Input, Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { ToolField } from "@/components/tool/tool-field";
 import { baseName, errorMessage, openBitmap } from "./shared";
-import { loadPdfLib, savePdf } from "./pdf-utils";
+import { ResultCard } from "./result-card";
+import { loadPdfLib, pdfBlob } from "./pdf-utils";
 import { openPdf } from "./pdf-render";
 import { PageNav, PagePreview } from "./pdf-preview";
 
@@ -131,6 +132,7 @@ export default function PdfPlace({ mode }: { mode: "sign" | "edit" }) {
   const [placed, setPlaced] = useState<Placed[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ blob: Blob; name: string } | null>(null);
 
   useEffect(() => {
     if (!doc) return;
@@ -138,6 +140,7 @@ export default function PdfPlace({ mode }: { mode: "sign" | "edit" }) {
   }, [doc, page]);
 
   async function pick([f]: File[]) {
+    setResult(null);
     if (!f) return;
     setError(null);
     setPlaced([]);
@@ -174,6 +177,7 @@ export default function PdfPlace({ mode }: { mode: "sign" | "edit" }) {
   async function save() {
     if (!file) return;
     setError(null);
+    setResult(null);
     setBusy(true);
     try {
       const { StandardFonts, rgb } = await import("pdf-lib");
@@ -200,7 +204,7 @@ export default function PdfPlace({ mode }: { mode: "sign" | "edit" }) {
           pg.drawText(p.item.text, { x: cx - tw / 2, y: cy - p.item.size * 0.35, size: p.item.size, font, color: rgb(0, 0, 0) });
         }
       }
-      await savePdf(out, `${baseName(file.name)}-${mode === "sign" ? "signed" : "edited"}.pdf`);
+      setResult({ blob: await pdfBlob(out), name: `${baseName(file.name)}-${mode === "sign" ? "signed" : "edited"}.pdf` });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -288,6 +292,7 @@ export default function PdfPlace({ mode }: { mode: "sign" | "edit" }) {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

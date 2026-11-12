@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { ToolField } from "@/components/tool/tool-field";
 import { API_URL } from "@/lib/site";
-import { downloadBlob, formatBytes } from "@/lib/utils";
+import { formatBytes } from "@/lib/utils";
 import { baseName } from "./shared";
+import { ResultCard } from "./result-card";
 
 export type ServerPdfKind = "unlock-pdf" | "protect-pdf" | "repair-pdf" | "ocr-pdf";
 
@@ -123,16 +124,7 @@ export default function ServerPdf({ kind }: { kind: ServerPdfKind }) {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
-      {result && (
-        <div className="space-y-3 border border-foreground p-4">
-          <p className="text-sm">
-            {result.name}, {formatBytes(result.blob.size)}
-          </p>
-          <Button onClick={() => downloadBlob(result.blob, result.name)}>
-            <Download aria-hidden /> Download
-          </Button>
-        </div>
-      )}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

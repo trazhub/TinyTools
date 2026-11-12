@@ -8,7 +8,8 @@ import { Input, Segmented, Select } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { ToolField } from "@/components/tool/tool-field";
 import { baseName, errorMessage } from "./shared";
-import { loadPdfLib, parseRanges, pickPages, savePdf } from "./pdf-utils";
+import { ResultCard } from "./result-card";
+import { loadPdfLib, parseRanges, pickPages, pdfBlob } from "./pdf-utils";
 
 export type PdfEditKind = "remove-pages" | "extract-pages" | "rotate-pdf" | "page-numbers" | "watermark-pdf" | "crop-pdf";
 
@@ -40,7 +41,7 @@ export default function PdfEdit({ kind }: { kind: PdfEditKind }) {
   const [pages, setPages] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<string | null>(null);
+  const [result, setResult] = useState<{ blob: Blob; name: string } | null>(null);
 
   // options (strings so the fields can be empty while typing)
   const [spec, setSpec] = useState("");
@@ -54,11 +55,11 @@ export default function PdfEdit({ kind }: { kind: PdfEditKind }) {
   const [margins, setMargins] = useState({ top: "10", bottom: "10", left: "10", right: "10" });
 
   async function pick([f]: File[]) {
+    setResult(null);
     if (!f) return;
     setFile(f);
     setPages(null);
     setError(null);
-    setDone(null);
     try {
       setPages((await loadPdfLib(f)).getPageCount());
     } catch (e) {
@@ -70,7 +71,7 @@ export default function PdfEdit({ kind }: { kind: PdfEditKind }) {
   async function run() {
     if (!file) return;
     setError(null);
-    setDone(null);
+    setResult(null);
     setBusy(true);
     try {
       const { StandardFonts, degrees, rgb } = await import("pdf-lib");
@@ -145,8 +146,7 @@ export default function PdfEdit({ kind }: { kind: PdfEditKind }) {
         }
       }
 
-      await savePdf(doc, `${name}-${kind.replace("-pdf", "").replace("-pages", "")}.pdf`);
-      setDone("Downloaded.");
+      setResult({ blob: await pdfBlob(doc), name: `${name}-${kind.replace("-pdf", "").replace("-pages", "")}.pdf` });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -250,7 +250,7 @@ export default function PdfEdit({ kind }: { kind: PdfEditKind }) {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
-      {done && <Alert tone="success">{done}</Alert>}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

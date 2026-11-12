@@ -6,8 +6,9 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
-import { downloadBlob, formatBytes } from "@/lib/utils";
+import { formatBytes } from "@/lib/utils";
 import { canvasToBlob, drawScaled, errorMessage, openBitmap } from "./shared";
+import { ResultCard } from "./result-card";
 
 const PAGE_SIZES = [
   { value: "fit", label: "Same as image" },
@@ -25,6 +26,7 @@ export default function PdfMaker({ scan = false }: { scan?: boolean }) {
   const [size, setSize] = useState<string>("fit");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ blob: Blob; name: string } | null>(null);
 
   function move(i: number, d: -1 | 1) {
     setItems((list) => {
@@ -38,6 +40,7 @@ export default function PdfMaker({ scan = false }: { scan?: boolean }) {
 
   async function make() {
     setError(null);
+    setResult(null);
     setBusy(true);
     try {
       const { PDFDocument } = await import("pdf-lib");
@@ -60,7 +63,7 @@ export default function PdfMaker({ scan = false }: { scan?: boolean }) {
           pdf.addPage([pw, ph]).drawImage(image, { x: (pw - w) / 2, y: (ph - h) / 2, width: w, height: h });
         }
       }
-      downloadBlob(new Blob([(await pdf.save()) as BlobPart], { type: "application/pdf" }), "images.pdf");
+      setResult({ blob: new Blob([(await pdf.save()) as BlobPart], { type: "application/pdf" }), name: "images.pdf" });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -109,6 +112,7 @@ export default function PdfMaker({ scan = false }: { scan?: boolean }) {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

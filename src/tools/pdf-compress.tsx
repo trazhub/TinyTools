@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { API_URL } from "@/lib/site";
-import { downloadBlob, formatBytes } from "@/lib/utils";
+import { formatBytes } from "@/lib/utils";
 import { baseName } from "./shared";
+import { ResultCard } from "./result-card";
 
 const MAX_BYTES = 50 * 1024 * 1024;
 const LEVELS = [
@@ -82,17 +83,7 @@ export default function PdfCompress() {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
-      {result && (
-        <div className="space-y-3 border border-foreground p-4">
-          <p className="text-sm">
-            {formatBytes(file?.size ?? 0)} → {formatBytes(result.blob.size)}
-            {saved > 0 ? ` (${saved}% smaller)` : " (already as small as it gets)"}
-          </p>
-          <Button onClick={() => downloadBlob(result.blob, result.name)}>
-            <Download aria-hidden /> Download
-          </Button>
-        </div>
-      )}
+      {result && <ResultCard blob={result.blob} name={result.name} note={saved > 0 ? `${saved}% smaller than the original (${formatBytes(file?.size ?? 0)}).` : "Already as small as it gets."} />}
     </div>
   );
 }

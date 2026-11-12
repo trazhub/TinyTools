@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
-import { downloadBlob, formatBytes } from "@/lib/utils";
+import { formatBytes } from "@/lib/utils";
 import { EXT, OUTPUT_QUALITY, baseName, errorMessage, canvasToBlob, drawScaled, openBitmap } from "./shared";
+import { ResultCard } from "./result-card";
 
 const FORMATS = [
   { value: "image/png", label: "PNG" },
@@ -75,18 +75,7 @@ export default function ImageConverter() {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
-      {result && (
-        <div className="space-y-3 border border-foreground p-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={result.url} alt="Result" className="max-h-64 max-w-full border border-border" />
-          <p className="text-sm">
-            {result.name}, {formatBytes(result.blob.size)}
-          </p>
-          <Button onClick={() => downloadBlob(result.blob, result.name)}>
-            <Download aria-hidden /> Download
-          </Button>
-        </div>
-      )}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

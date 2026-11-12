@@ -6,8 +6,8 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
-import { downloadBlob } from "@/lib/utils";
 import { baseName, canvasToBlob, errorMessage } from "./shared";
+import { ResultCard } from "./result-card";
 import { openPdf, renderPage, safeScale } from "./pdf-render";
 
 const QUALITY = [
@@ -25,12 +25,12 @@ export default function PdfDark() {
   const [quality, setQuality] = useState<string>("2");
   const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<string | null>(null);
+  const [result, setResult] = useState<{ blob: Blob; name: string } | null>(null);
 
   async function run() {
     if (!file) return;
     setError(null);
-    setDone(null);
+    setResult(null);
     try {
       setProgress("Opening…");
       const doc = await openPdf(file);
@@ -51,8 +51,7 @@ export default function PdfDark() {
       }
       setProgress("Saving…");
       const bytes = await out.save();
-      downloadBlob(new Blob([bytes as BlobPart], { type: "application/pdf" }), `${baseName(file.name)}-dark.pdf`);
-      setDone(`Downloaded ${doc.numPages} dark page${doc.numPages === 1 ? "" : "s"}.`);
+      setResult({ blob: new Blob([bytes as BlobPart], { type: "application/pdf" }), name: `${baseName(file.name)}-dark.pdf` });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -68,7 +67,7 @@ export default function PdfDark() {
         onFiles={([f]) => {
           if (!f) return;
           setFile(f);
-          setDone(null);
+          setResult(null);
           setError(null);
         }}
       />
@@ -87,7 +86,7 @@ export default function PdfDark() {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
-      {done && <Alert tone="success">{done}</Alert>}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

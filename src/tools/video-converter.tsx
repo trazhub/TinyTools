@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Download, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
-import { downloadBlob, formatBytes } from "@/lib/utils";
-import { baseName, errorMessage, vendorUrl } from "./shared";
+import { formatBytes } from "@/lib/utils";
+import { baseName, errorMessage } from "./shared";
+import { loadFFmpeg, type FFmpeg } from "./ffmpeg";
+import { ResultCard } from "./result-card";
 
 const MAX_BYTES = 500 * 1024 * 1024;
 
@@ -23,17 +25,6 @@ type Format = keyof typeof FORMATS;
 
 const OPTIONS = (Object.keys(FORMATS) as Format[]).map((value) => ({ value, label: FORMATS[value].label }));
 
-/** The few parts of ffmpeg.wasm (@ffmpeg/ffmpeg 0.12) used here. Declared locally because the package types pull in worker typings. */
-interface FFmpeg {
-  load(config: { classWorkerURL: string; coreURL: string; wasmURL: string }): Promise<boolean>;
-  exec(args: string[]): Promise<number>;
-  writeFile(path: string, data: Uint8Array): Promise<boolean>;
-  readFile(path: string): Promise<Uint8Array | string>;
-  deleteFile(path: string): Promise<boolean>;
-  on(event: "progress", cb: (e: { progress: number }) => void): void;
-  off(event: "progress", cb: (e: { progress: number }) => void): void;
-  terminate(): void;
-}
 type FFmpegInstance = FFmpeg;
 
 export default function VideoConverter() {
@@ -49,16 +40,8 @@ export default function VideoConverter() {
   async function getFFmpeg() {
     if (ffmpeg.current) return ffmpeg.current;
     setStatus("Loading the converter (about 30 MB, once)…");
-    // Loaded from our own origin at runtime (not bundled): ffmpeg starts its own worker from these files.
-    const lib: { FFmpeg: new () => FFmpeg } = await import(/* webpackIgnore: true */ /* turbopackIgnore: true */ vendorUrl("ffmpeg/lib/index.js"));
-    const ff = new lib.FFmpeg();
-    await ff.load({
-      classWorkerURL: vendorUrl("ffmpeg/lib/worker.js"),
-      coreURL: vendorUrl("ffmpeg/ffmpeg-core.js"),
-      wasmURL: vendorUrl("ffmpeg/ffmpeg-core.wasm"),
-    });
-    ffmpeg.current = ff;
-    return ff;
+    ffmpeg.current = await loadFFmpeg();
+    return ffmpeg.current;
   }
 
   async function run() {
@@ -135,16 +118,7 @@ export default function VideoConverter() {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
-      {result && (
-        <div className="space-y-3 border border-foreground p-4">
-          <p className="text-sm">
-            {result.name}, {formatBytes(result.blob.size)}
-          </p>
-          <Button onClick={() => downloadBlob(result.blob, result.name)}>
-            <Download aria-hidden /> Download
-          </Button>
-        </div>
-      )}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

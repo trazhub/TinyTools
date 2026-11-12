@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { formatBytes } from "@/lib/utils";
 import { errorMessage } from "./shared";
-import { loadPdfLib, savePdf } from "./pdf-utils";
+import { ResultCard } from "./result-card";
+import { loadPdfLib, pdfBlob } from "./pdf-utils";
 
 let counter = 0;
 
@@ -15,6 +16,7 @@ export default function PdfMerge() {
   const [items, setItems] = useState<{ id: number; file: File }[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ blob: Blob; name: string } | null>(null);
 
   function move(i: number, d: -1 | 1) {
     setItems((list) => {
@@ -28,6 +30,7 @@ export default function PdfMerge() {
 
   async function merge() {
     setError(null);
+    setResult(null);
     setBusy(true);
     try {
       const { PDFDocument } = await import("pdf-lib");
@@ -42,7 +45,7 @@ export default function PdfMerge() {
         const copied = await out.copyPages(src, src.getPageIndices());
         copied.forEach((p) => out.addPage(p));
       }
-      await savePdf(out, "merged.pdf");
+      setResult({ blob: await pdfBlob(out), name: "merged.pdf" });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -85,6 +88,7 @@ export default function PdfMerge() {
         </div>
       )}
       {error && <Alert tone="error">{error}</Alert>}
+      {result && <ResultCard blob={result.blob} name={result.name} />}
     </div>
   );
 }

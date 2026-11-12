@@ -17,9 +17,11 @@ import PdfDark from "@/tools/pdf-dark";
 import VideoConverter from "@/tools/video-converter";
 import Viewer3D from "@/tools/viewer-3d";
 import PdfCompress from "@/tools/pdf-compress";
+import Ocr from "@/tools/ocr";
 
 const VIEWS: Record<ToolSlug, ComponentType> = {
   "pdf-compress": PdfCompress,
+  ocr: Ocr,
   "word-counter": WordCounter,
   "json-formatter": JsonFormatter,
   base64: Base64,

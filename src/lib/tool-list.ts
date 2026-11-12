@@ -6,6 +6,7 @@ export const TOOLS: readonly { slug: string; name: string; description: string; 
   { slug: "pdf-maker", name: "PDF maker", description: "Turn images into one PDF." },
   { slug: "pdf-to-images", name: "PDF converter", description: "Turn a PDF into PNG or JPG images." },
   { slug: "pdf-compress", name: "PDF compress", description: "Make a PDF smaller. Uploads to our server.", server: true },
+  { slug: "ocr", name: "OCR", description: "Get the text out of an image or scanned PDF. Uploads to our server.", server: true },
   { slug: "pdf-dark-mode", name: "PDF black theme", description: "Make a PDF black with white text." },
   { slug: "video-format-changer", name: "Video format changer", description: "Convert video to MP4, WebM, MOV, GIF or MP3." },
   { slug: "3d-viewer", name: "3D viewer", description: "View GLB, glTF, OBJ and STL models." },

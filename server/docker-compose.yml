@@ -6,6 +6,7 @@ services:
       - "127.0.0.1:8080:8080"   # only the VM itself; Tailscale Funnel exposes it publicly over HTTPS
     environment:
       ALLOWED_ORIGIN: "https://trazhub.github.io"
+      XDG_CACHE_HOME: /tmp       # fonts cache (the filesystem is read-only except /tmp)
     read_only: true
     tmpfs:
       - /tmp:size=512m           # uploads live here only while a job runs

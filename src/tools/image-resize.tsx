@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { ToolField } from "@/components/tool/tool-field";
 import { downloadBlob, formatBytes } from "@/lib/utils";
-import { EXT, OUTPUT_QUALITY, baseName, canvasToBlob, checkSize, drawScaled, openBitmap } from "./shared";
+import { EXT, OUTPUT_QUALITY, baseName, errorMessage, canvasToBlob, checkSize, drawScaled, openBitmap } from "./shared";
 
 interface Loaded {
   file: File;
@@ -47,7 +47,7 @@ export default function ImageResize({ mode }: { mode: "scale" | "resolution" }) 
       setHeight(String(bitmap.height));
     } catch (e) {
       setImg(null);
-      setError((e as Error).message);
+      setError(errorMessage(e));
     }
   }
 
@@ -83,7 +83,7 @@ export default function ImageResize({ mode }: { mode: "scale" | "resolution" }) 
         name: `${baseName(img.file.name)}-${size.width}x${size.height}.${EXT[type]}`,
       });
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     }
   }
 

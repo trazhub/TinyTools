@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { downloadBlob, formatBytes } from "@/lib/utils";
-import { baseName, vendorUrl } from "./shared";
+import { baseName, errorMessage, vendorUrl } from "./shared";
 
 const MAX_BYTES = 500 * 1024 * 1024;
 
@@ -82,7 +82,7 @@ export default function VideoConverter() {
       const data = (await ff.readFile(output)) as Uint8Array;
       setResult({ blob: new Blob([data as BlobPart], { type: mime }), name: `${baseName(file.name)}.${format}` });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "The conversion failed.");
+      setError(errorMessage(e));
       // A failed run can leave the engine in a bad state; start fresh next time.
       ffmpeg.current?.terminate();
       ffmpeg.current = null;

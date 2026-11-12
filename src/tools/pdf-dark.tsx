@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { downloadBlob } from "@/lib/utils";
-import { baseName, canvasToBlob } from "./shared";
+import { baseName, canvasToBlob, errorMessage } from "./shared";
 import { openPdf, renderPage, safeScale } from "./pdf-render";
 
 const QUALITY = [
@@ -54,7 +54,7 @@ export default function PdfDark() {
       downloadBlob(new Blob([bytes as BlobPart], { type: "application/pdf" }), `${baseName(file.name)}-dark.pdf`);
       setDone(`Downloaded ${doc.numPages} dark page${doc.numPages === 1 ? "" : "s"}.`);
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setProgress(null);
     }

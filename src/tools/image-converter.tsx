@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { downloadBlob, formatBytes } from "@/lib/utils";
-import { EXT, OUTPUT_QUALITY, baseName, canvasToBlob, drawScaled, openBitmap } from "./shared";
+import { EXT, OUTPUT_QUALITY, baseName, errorMessage, canvasToBlob, drawScaled, openBitmap } from "./shared";
 
 const FORMATS = [
   { value: "image/png", label: "PNG" },
@@ -38,7 +38,7 @@ export default function ImageConverter() {
       setResult({ blob, url: URL.createObjectURL(blob), name: `${baseName(file.name)}.${EXT[type]}` });
     } catch (e) {
       setResult(null);
-      setError((e as Error).message);
+      setError(errorMessage(e));
     }
   }
 

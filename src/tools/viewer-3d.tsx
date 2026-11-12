@@ -9,6 +9,7 @@ import { STLLoader } from "three/addons/loaders/STLLoader.js";
 import { Alert } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
+import { errorMessage } from "./shared";
 
 const MAX_BYTES = 200 * 1024 * 1024;
 
@@ -154,7 +155,7 @@ export default function Viewer3D() {
       api.current?.wireframe(wire);
       setName(file.name);
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     }
   }
 

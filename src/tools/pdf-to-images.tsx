@@ -8,7 +8,7 @@ import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { createZip } from "@/lib/zip";
 import { downloadBlob } from "@/lib/utils";
-import { baseName, canvasToBlob } from "./shared";
+import { baseName, canvasToBlob, errorMessage } from "./shared";
 import { openPdf, renderPage, safeScale } from "./pdf-render";
 
 const FORMATS = [
@@ -56,7 +56,7 @@ export default function PdfToImages() {
       }
       setDone(entries.length === 1 ? "Downloaded 1 image." : `Downloaded ${entries.length} images in a zip.`);
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setProgress(null);
     }

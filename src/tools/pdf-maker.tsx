@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Segmented } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { downloadBlob, formatBytes } from "@/lib/utils";
-import { canvasToBlob, drawScaled, openBitmap } from "./shared";
+import { canvasToBlob, drawScaled, errorMessage, openBitmap } from "./shared";
 
 const PAGE_SIZES = [
   { value: "fit", label: "Same as image" },
@@ -61,7 +61,7 @@ export default function PdfMaker() {
       }
       downloadBlob(new Blob([(await pdf.save()) as BlobPart], { type: "application/pdf" }), "images.pdf");
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorMessage(e));
     } finally {
       setBusy(false);
     }

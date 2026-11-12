@@ -72,3 +72,12 @@ export async function openBitmap(file: File): Promise<ImageBitmap> {
     throw new Error("That file is not an image this browser can open (try PNG, JPG or WebP).");
   }
 }
+
+/** Turn an error into text for the user. A failed script download gets a plain "reload" hint. */
+export function errorMessage(e: unknown): string {
+  const text = e instanceof Error ? e.message : String(e);
+  if (/chunk|dynamically imported module|Importing a module script failed|Failed to fetch/i.test(text)) {
+    return "Part of this page failed to load. Reload the page (Ctrl+Shift+R) and try again.";
+  }
+  return text || "Something went wrong.";
+}

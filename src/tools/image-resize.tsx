@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/form";
 import { FileDropzone } from "@/components/tool/file-dropzone";
 import { ToolField } from "@/components/tool/tool-field";
 import { downloadBlob, formatBytes } from "@/lib/utils";
-import { EXT, baseName, canvasToBlob, checkSize, drawScaled, openBitmap } from "./shared";
+import { EXT, OUTPUT_QUALITY, baseName, canvasToBlob, checkSize, drawScaled, openBitmap } from "./shared";
 
 interface Loaded {
   file: File;
@@ -75,7 +75,7 @@ export default function ImageResize({ mode }: { mode: "scale" | "resolution" }) 
     setError(null);
     try {
       const type = img.file.type in EXT ? img.file.type : "image/png";
-      const blob = await canvasToBlob(drawScaled(img.bitmap, size, type), type, 0.92);
+      const blob = await canvasToBlob(drawScaled(img.bitmap, size, type), type, OUTPUT_QUALITY);
       setResult({
         blob,
         url: URL.createObjectURL(blob),

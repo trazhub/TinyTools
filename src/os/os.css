@@ -1,0 +1,588 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * TinyTools OS: pixel-art design system.
+ * Four room themes set the UI colours (the artwork palettes live in src/os/pixel/palette.ts).
+ * "Pixel borders" are made with box-shadows that leave the four corners notched.
+ */
+:root,
+:root[data-theme="midnight"] {
+  color-scheme: dark;
+  --background: #1a1840;
+  --foreground: #f3e9d0;
+  --card: #232063;
+  --card-foreground: #f3e9d0;
+  --muted: #2b2778;
+  --muted-foreground: #b3b0e6;
+  --border: #4a42b0;
+  --input: #5a50c8;
+  --primary: #ffc866;
+  --primary-foreground: #1b1030;
+  --accent: #3a3490;
+  --accent-foreground: #fff3d6;
+  --ring: #ffc866;
+  --destructive: #ff8a82;
+  --destructive-soft: #4a2040;
+  --success: #86e8a6;
+  --success-soft: #1f4a46;
+  --warning: #ffd27a;
+  --warning-soft: #4a3a30;
+  --px-bd: #070618;
+  --px-frame: #5d82dc;
+  --px-title: #2e2a80;
+  --px-title-inactive: #211e5c;
+  --px-btn: #8eb0f2;
+  --px-btn-hi: #c2d4fb;
+  --px-btn-lo: #5d82dc;
+  --px-stage-bg: #070618;
+  --px-glow: 255 200 110;
+}
+
+:root[data-theme="dusk"] {
+  color-scheme: dark;
+  --background: #2a1040;
+  --foreground: #f9e8f0;
+  --card: #3a1a58;
+  --card-foreground: #f9e8f0;
+  --muted: #482268;
+  --muted-foreground: #dbb0e6;
+  --border: #8f45a0;
+  --input: #b0449a;
+  --primary: #ffb07a;
+  --primary-foreground: #2a0e42;
+  --accent: #5a2a80;
+  --accent-foreground: #ffe9d6;
+  --ring: #ffb07a;
+  --destructive: #ff8a82;
+  --destructive-soft: #5a2040;
+  --success: #8fe8b0;
+  --success-soft: #25483f;
+  --warning: #ffd27a;
+  --warning-soft: #523a35;
+  --px-bd: #12061c;
+  --px-frame: #c9a3f2;
+  --px-title: #6b2368;
+  --px-title-inactive: #4a1a52;
+  --px-btn: #e19be0;
+  --px-btn-hi: #f5c8f0;
+  --px-btn-lo: #b0449a;
+  --px-stage-bg: #12061c;
+  --px-glow: 255 170 120;
+}
+
+:root[data-theme="daylight"] {
+  color-scheme: light;
+  --background: #fbf3e0;
+  --foreground: #2a2748;
+  --card: #fffaf0;
+  --card-foreground: #2a2748;
+  --muted: #efe5cc;
+  --muted-foreground: #5f5c88;
+  --border: #b8a8d8;
+  --input: #8f88c0;
+  --primary: #5b4bc4;
+  --primary-foreground: #ffffff;
+  --accent: #e4dcfa;
+  --accent-foreground: #2f2670;
+  --ring: #5b4bc4;
+  --destructive: #b8302e;
+  --destructive-soft: #fbe3de;
+  --success: #1e7a48;
+  --success-soft: #dff3e4;
+  --warning: #8a5a10;
+  --warning-soft: #fbefc8;
+  --px-bd: #2a2748;
+  --px-frame: #7fa6e6;
+  --px-title: #a8c4f2;
+  --px-title-inactive: #cfe0fb;
+  --px-btn: #ffc866;
+  --px-btn-hi: #ffe3a0;
+  --px-btn-lo: #e29a3a;
+  --px-stage-bg: #c9dff5;
+  --px-glow: 255 220 150;
+}
+
+:root[data-theme="forest"] {
+  color-scheme: dark;
+  --background: #0d2a22;
+  --foreground: #e8f5e3;
+  --card: #133a2f;
+  --card-foreground: #e8f5e3;
+  --muted: #1a4a3c;
+  --muted-foreground: #9fd4be;
+  --border: #2f7a62;
+  --input: #3fa086;
+  --primary: #ffd27a;
+  --primary-foreground: #0b2018;
+  --accent: #1f5a49;
+  --accent-foreground: #fff0c8;
+  --ring: #ffd27a;
+  --destructive: #ff9a8a;
+  --destructive-soft: #4a2a2a;
+  --success: #9ef0b4;
+  --success-soft: #1d4a3c;
+  --warning: #ffd27a;
+  --warning-soft: #4a4228;
+  --px-bd: #04140f;
+  --px-frame: #4fa5bd;
+  --px-title: #1d6350;
+  --px-title-inactive: #144a3b;
+  --px-btn: #86ccd8;
+  --px-btn-hi: #c0ecee;
+  --px-btn-lo: #3fa0b0;
+  --px-stage-bg: #04140f;
+  --px-glow: 255 214 130;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-ring: var(--ring);
+  --color-titlebar: var(--px-title);
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-pixel: "Pixelify Sans", ui-monospace, "Courier New", monospace;
+  --font-term: "VT323", ui-monospace, "Courier New", monospace;
+
+  --shadow-soft: none;
+  --shadow-lift: none;
+
+  --animate-window-in: window-in 180ms steps(4, end);
+  --animate-pop-in: pop-in 140ms steps(3, end);
+  --animate-fade-in: fade-in 240ms steps(5, end);
+  --animate-toast-in: toast-in 240ms steps(4, end);
+}
+
+@keyframes window-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+}
+@keyframes px-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes px-bob {
+  0%,
+  49% {
+    transform: translateY(0);
+  }
+  50%,
+  100% {
+    transform: translateY(-1px);
+  }
+}
+@keyframes px-twinkle {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  80% {
+    opacity: 0.2;
+  }
+  81%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes px-flicker {
+  0%,
+  88% {
+    opacity: 1;
+  }
+  89%,
+  92% {
+    opacity: 0.86;
+  }
+  93%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes px-dust {
+  from {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15%,
+  80% {
+    opacity: 0.7;
+  }
+  to {
+    transform: translate(var(--dx, 6px), -34px);
+    opacity: 0;
+  }
+}
+@keyframes px-float {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-18px);
+    opacity: 0;
+  }
+}
+@keyframes px-bounce {
+  0%,
+  49% {
+    transform: translateY(0);
+  }
+  50%,
+  100% {
+    transform: translateY(-2px);
+  }
+}
+@keyframes px-seq-2 {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes px-seq-2a {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes boot-bar {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    scrollbar-width: auto;
+    scrollbar-color: var(--px-frame) var(--background);
+  }
+
+  *::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+  }
+  *::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--px-frame);
+    border: 3px solid var(--background);
+  }
+
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body {
+    background: var(--px-stage-bg);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    text-rendering: optimizeLegibility;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  [role="button"],
+  summary {
+    cursor: var(--px-hand, pointer);
+  }
+
+  :focus-visible {
+    outline: 3px dashed var(--ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+}
+
+@layer components {
+  .font-pixel {
+    font-family: var(--font-pixel);
+    letter-spacing: 0.02em;
+  }
+
+  /* A panel with a notched pixel border and a hard drop shadow. Leave 4px around it. */
+  .px-panel {
+    background: var(--card);
+    box-shadow:
+      0 -4px 0 0 var(--px-bd),
+      0 4px 0 0 var(--px-bd),
+      -4px 0 0 0 var(--px-bd),
+      4px 0 0 0 var(--px-bd),
+      0 -2px 0 2px var(--px-frame),
+      inset 0 0 0 0 transparent,
+      8px 8px 0 0 rgb(0 0 0 / 0.35);
+  }
+
+  .px-frame {
+    box-shadow:
+      0 -4px 0 0 var(--px-bd),
+      0 4px 0 0 var(--px-bd),
+      -4px 0 0 0 var(--px-bd),
+      4px 0 0 0 var(--px-bd);
+  }
+
+  /* Chunky retro button base: 2px notched outline, lit top edge, shaded bottom edge. */
+  .px-btn {
+    background: var(--px-btn);
+    color: var(--px-bd);
+    box-shadow:
+      0 -2px 0 0 var(--px-bd),
+      0 2px 0 0 var(--px-bd),
+      -2px 0 0 0 var(--px-bd),
+      2px 0 0 0 var(--px-bd),
+      inset 0 2px 0 0 var(--px-btn-hi),
+      inset 0 -4px 0 0 var(--px-btn-lo);
+    transition: none;
+  }
+  .px-btn:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+  .px-btn:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow:
+      0 -2px 0 0 var(--px-bd),
+      0 2px 0 0 var(--px-bd),
+      -2px 0 0 0 var(--px-bd),
+      2px 0 0 0 var(--px-bd),
+      inset 0 2px 0 0 var(--px-btn-lo);
+  }
+
+  .px-field {
+    background: var(--px-bd);
+    color: var(--foreground);
+    box-shadow:
+      0 -2px 0 0 var(--input),
+      0 2px 0 0 var(--input),
+      -2px 0 0 0 var(--input),
+      2px 0 0 0 var(--input);
+  }
+  :root[data-theme="daylight"] .px-field {
+    background: #fffaf0;
+  }
+  .px-field:hover:not(:disabled) {
+    box-shadow:
+      0 -2px 0 0 var(--primary),
+      0 2px 0 0 var(--primary),
+      -2px 0 0 0 var(--primary),
+      2px 0 0 0 var(--primary);
+  }
+  .px-field:focus-visible {
+    outline: none;
+    box-shadow:
+      0 -2px 0 0 var(--ring),
+      0 2px 0 0 var(--ring),
+      -2px 0 0 0 var(--ring),
+      2px 0 0 0 var(--ring),
+      0 0 0 5px color-mix(in oklab, var(--ring) 30%, transparent);
+  }
+
+  .skip-link {
+    position: fixed;
+    left: 1rem;
+    top: -4rem;
+    z-index: 100000;
+    background: var(--primary);
+    padding: 0.5rem 1rem;
+    color: var(--primary-foreground);
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
+
+  input[type="range"].range {
+    appearance: none;
+    width: 100%;
+    height: 1.5rem;
+    background: transparent;
+    cursor: var(--px-hand, pointer);
+  }
+  input[type="range"].range::-webkit-slider-runnable-track {
+    height: 8px;
+    background: var(--px-bd);
+    border: 2px solid var(--input);
+  }
+  input[type="range"].range::-moz-range-track {
+    height: 8px;
+    background: var(--px-bd);
+    border: 2px solid var(--input);
+  }
+  input[type="range"].range::-webkit-slider-thumb {
+    appearance: none;
+    height: 18px;
+    width: 14px;
+    margin-top: -8px;
+    background: var(--primary);
+    border: 2px solid var(--px-bd);
+  }
+  input[type="range"].range::-moz-range-thumb {
+    height: 14px;
+    width: 10px;
+    background: var(--primary);
+    border: 2px solid var(--px-bd);
+    border-radius: 0;
+  }
+}
+
+/* ---- the room ------------------------------------------------------------------ */
+
+.px-art {
+  image-rendering: pixelated;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* Hover / focus highlight: a one-art-pixel amber outline plus a little extra light. */
+.px-item[data-hot="true"] .px-art {
+  filter: drop-shadow(1px 0 0 #ffc866) drop-shadow(-1px 0 0 #ffc866) drop-shadow(0 1px 0 #ffc866) drop-shadow(0 -1px 0 #ffc866) brightness(1.14);
+}
+
+/* Frame-by-frame animation by stacking frames and toggling opacity in steps. */
+/* Items are already position:absolute, which also anchors the stacked frames. */
+.px-seq > .px-art + .px-art {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: px-seq-2 var(--cycle, 2s) steps(1, end) infinite;
+}
+.px-seq > .px-art:first-child {
+  animation: px-seq-2a var(--cycle, 2s) steps(1, end) infinite;
+}
+
+.px-glow {
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.px-crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.14) 0, rgb(0 0 0 / 0.14) 1px, transparent 1px, transparent 3px),
+    radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.38) 100%);
+  mix-blend-mode: multiply;
+}
+
+/* ---- window frames --------------------------------------------------------------- */
+
+.px-window {
+  background: var(--background);
+  box-shadow:
+    0 -4px 0 0 var(--px-bd),
+    0 4px 0 0 var(--px-bd),
+    -4px 0 0 0 var(--px-bd),
+    4px 0 0 0 var(--px-bd),
+    0 -2px 0 2px var(--px-frame),
+    8px 8px 0 0 rgb(0 0 0 / 0.4);
+}
+.px-window[data-focused="false"] {
+  box-shadow:
+    0 -4px 0 0 var(--px-bd),
+    0 4px 0 0 var(--px-bd),
+    -4px 0 0 0 var(--px-bd),
+    4px 0 0 0 var(--px-bd),
+    4px 4px 0 0 rgb(0 0 0 / 0.25);
+}
+.wm-window[data-minimized="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ---- motion ---------------------------------------------------------------------- */
+
+html[data-motion="reduce"] *,
+html[data-motion="reduce"] *::before,
+html[data-motion="reduce"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) *,
+  html:not([data-motion="full"]) *::before,
+  html:not([data-motion="full"]) *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.os-chrome {
+  user-select: none;
+  -webkit-user-select: none;
+}
+body {
+  cursor: var(--px-arrow, default);
+}

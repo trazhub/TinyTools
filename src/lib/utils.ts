@@ -27,7 +27,6 @@ export function formatBytes(bytes: number): string {
  */
 export function sanitizeFilename(name: string, fallback = "file"): string {
   const cleaned = name
-    // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u001f\u007f<>:"/\\|?*]/g, "_")
     .replace(/^\.+/, "")
     .replace(/[. ]+$/, "")

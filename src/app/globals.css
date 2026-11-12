@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/* Plain black and white. No colour, no shadows, no rounded corners. */
+:root {
+  color-scheme: light;
+  --background: #fff;
+  --foreground: #000;
+  --card: #fff;
+  --card-foreground: #000;
+  --muted: #f2f2f2;
+  --muted-foreground: #595959;
+  --border: #000;
+  --input: #000;
+  --primary: #000;
+  --primary-foreground: #fff;
+  --accent: #f2f2f2;
+  --accent-foreground: #000;
+  --ring: #000;
+  --destructive: #000;
+  --destructive-soft: #fff;
+  --success: #000;
+  --success-soft: #fff;
+  --warning: #000;
+  --warning-soft: #fff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-ring: var(--ring);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+    border-radius: 0 !important;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  button,
+  [role="button"],
+  summary {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--foreground);
+    color: var(--background);
+  }
+
+  input[type="range"] {
+    accent-color: #000;
+    width: 100%;
+  }
+}
